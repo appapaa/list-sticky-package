@@ -28,6 +28,15 @@
         "virtual-scroll"
     ],
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/appapaa/list-sticky-package.git"
+    },
+    "homepage": "https://github.com/appapaa/list-sticky-package#readme",
+    "bugs": {
+        "url": "https://github.com/appapaa/list-sticky-package/issues"
+    },
+    "sideEffects": false,
     "peerDependencies": {
         "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
         "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
