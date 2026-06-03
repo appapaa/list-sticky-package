@@ -1,0 +1,43 @@
+{
+    "name": "list-sticky",
+    "version": "1.0.0",
+    "description": "A virtualized sticky list component for React with smooth scrolling and sticky headers support",
+    "type": "module",
+    "main": "dist/list-sticky.cjs.js",
+    "module": "dist/list-sticky.es.js",
+    "types": "dist/list-sticky.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/list-sticky.d.ts",
+            "import": "./dist/list-sticky.es.js",
+            "require": "./dist/list-sticky.cjs.js"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "react",
+        "virtualized-list",
+        "sticky",
+        "list",
+        "virtual-scroll"
+    ],
+    "license": "MIT",
+    "peerDependencies": {
+        "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+        "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^19.2.14",
+        "@types/react-dom": "^19.2.3",
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6",
+        "tsup": "^8.4.0",
+        "typescript": "^5.8.3"
+    }
+}
