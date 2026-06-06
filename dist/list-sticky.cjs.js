@@ -65,7 +65,8 @@ function List({
   rowHeight = 50,
   fieldKey = "id",
   targetKey,
-  placeholder = "\u041D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445"
+  placeholder = "\u041D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445",
+  style
 }) {
   const refScroll = (0, import_react.useRef)(null);
   const refCenter = (0, import_react.useRef)(null);
@@ -197,7 +198,9 @@ function List({
   const isMastCheck = refScroll.current && refScroll.current.scrollTop < 200;
   (0, import_react.useEffect)(() => {
     if (isMastCheck && refTop.current) {
-      const parentHeight = refTop.current.parentElement.offsetHeight;
+      const parentElement = refTop.current.parentElement;
+      if (!parentElement) return;
+      const parentHeight = parentElement.offsetHeight;
       const height = refTop.current.offsetHeight;
       const delta = Math.max(target.index - cntElements, 0) * rowHeight;
       const overflow = height + delta - parentHeight;
@@ -250,7 +253,8 @@ function List({
         height: "100%",
         width: "100%",
         overflowY: "auto",
-        overflowX: "hidden"
+        overflowX: "hidden",
+        ...style
       },
       children: [
         data[lastStickyIndex] && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: {

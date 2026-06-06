@@ -1,5 +1,5 @@
 import * as react from 'react';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, CSSProperties } from 'react';
 
 interface ListItem {
     [key: string]: unknown;
@@ -14,7 +14,8 @@ interface ListProps<T extends ListItem> {
     fieldKey?: string;
     targetKey?: string | number;
     placeholder?: string | ReactNode;
+    style?: CSSProperties;
 }
-declare function List<T extends ListItem>({ data, renderRow, rowHeight, fieldKey, targetKey, placeholder }: ListProps<T>): react.JSX.Element;
+declare function List<T extends ListItem>({ data, renderRow, rowHeight, fieldKey, targetKey, placeholder, style }: ListProps<T>): react.JSX.Element;
 
 export { List, type ListItem, type ListProps, List as default };

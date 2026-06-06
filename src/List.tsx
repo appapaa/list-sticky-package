@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
 
 export interface ListItem {
     [key: string]: unknown;
@@ -12,15 +12,16 @@ export interface ListProps<T extends ListItem> {
     fieldKey?: string;
     targetKey?: string | number;
     placeholder?: string | ReactNode;
+    style?: CSSProperties;
 }
 
-const some = (values: HTMLCollection | undefined, matches: (value: Element) => boolean): boolean => {
+const some = (values: HTMLCollection | undefined, matches: (value: HTMLElement) => boolean): boolean => {
     const len = values?.length;
     if (!len) {
         return false;
     }
     for (let i = 0; i < len; i++) {
-        const value = values[i];
+        const value = values[i] as HTMLElement | undefined;
         if (value && matches(value)) {
             return true;
         }
@@ -28,19 +29,25 @@ const some = (values: HTMLCollection | undefined, matches: (value: Element) => b
     return false;
 };
 
-const someReverse = (values: HTMLCollection | undefined, matches: (value: Element) => boolean): boolean => {
+const someReverse = (values: HTMLCollection | undefined, matches: (value: HTMLElement) => boolean): boolean => {
     const len = values?.length;
     if (!len) {
         return false;
     }
     for (let i = len - 1; i >= 0; i--) {
-        const value = values[i];
+        const value = values[i] as HTMLElement | undefined;
         if (value && matches(value)) {
             return true;
         }
     }
     return false;
 };
+
+interface TargetState {
+    index: number;
+    top: number;
+    bottom: number;
+}
 
 interface ItemProps<T extends ListItem> {
     data: T;
@@ -51,7 +58,7 @@ const Item = memo(<T extends ListItem>({ data, renderRow }: ItemProps<T>) => {
     return renderRow({
         element: data,
     });
-}) as <T extends ListItem>(props: ItemProps<T>) => ReactElement;
+}) as <T extends ListItem>(props: ItemProps<T> & { key?: string }) => ReactElement;
 
 function List<T extends ListItem>({
     data,
@@ -59,7 +66,8 @@ function List<T extends ListItem>({
     rowHeight = 50,
     fieldKey = 'id',
     targetKey,
-    placeholder = 'Нет данных'
+    placeholder = 'Нет данных',
+    style
 }: ListProps<T>) {
     const refScroll = useRef<HTMLDivElement>(null);
     const refCenter = useRef<HTMLDivElement>(null);
@@ -75,7 +83,7 @@ function List<T extends ListItem>({
         return index >= 0 ? index : undefined;
     }, [fieldKey, targetKey, data]);
 
-    const [target, setTarget] = useState({
+    const [target, setTarget] = useState<TargetState>({
         index: targetIndex || 0,
         top: (targetIndex || 0) * rowHeight,
         bottom: rowHeight * (data.length - (targetIndex || 0) - 1)
@@ -144,7 +152,7 @@ function List<T extends ListItem>({
             let top = rect.height;
             const delta = -rect.top;
             const flg = some(refBottom.current.children, (div) => {
-                const h = (div as HTMLElement).offsetHeight;
+                const h = div.offsetHeight;
                 if (delta > top + h) {
                     i++;
                     top += h;
@@ -166,7 +174,7 @@ function List<T extends ListItem>({
             let top = 0;
             const delta = -rect.top;
             const flg = someReverse(refTop.current.children, (div) => {
-                const h = (div as HTMLElement).offsetHeight;
+                const h = div.offsetHeight;
                 i--;
                 top -= h;
                 if (delta > top) {
@@ -214,12 +222,14 @@ function List<T extends ListItem>({
     const isMastCheck = refScroll.current && (refScroll.current.scrollTop < 200);
     useEffect(() => {
         if (isMastCheck && refTop.current) {
-            const parentHeight = refTop.current.parentElement!.offsetHeight;
+            const parentElement = refTop.current.parentElement;
+            if (!parentElement) return;
+            const parentHeight = parentElement.offsetHeight;
             const height = refTop.current.offsetHeight;
             const delta = Math.max(target.index - cntElements, 0) * rowHeight;
             const overflow = height + delta - parentHeight;
             if (parentHeight < height) {
-                setTarget(t => ({
+                setTarget((t: TargetState) => ({
                     ...t,
                     top: t.top + overflow
                 }));
@@ -273,6 +283,7 @@ function List<T extends ListItem>({
                 width: '100%',
                 overflowY: 'auto',
                 overflowX: 'hidden',
+                ...style
             }}>
             {data[lastStickyIndex] && (
                 <div style={{
