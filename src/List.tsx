@@ -13,6 +13,7 @@ export interface ListProps<T extends ListItem> {
     targetKey?: string | number;
     placeholder?: string | ReactNode;
     style?: CSSProperties;
+    autoSize?: boolean;
 }
 
 const some = (values: HTMLCollection | undefined, matches: (value: HTMLElement) => boolean): boolean => {
@@ -63,17 +64,36 @@ const Item = memo(<T extends ListItem>({ data, renderRow }: ItemProps<T>) => {
 function List<T extends ListItem>({
     data,
     renderRow,
-    rowHeight = 50,
+    rowHeight: rowHeightProp = 50,
     fieldKey = 'id',
     targetKey,
     placeholder = 'Нет данных',
-    style
+    style,
+    autoSize = true
 }: ListProps<T>) {
     const refScroll = useRef<HTMLDivElement>(null);
     const refCenter = useRef<HTMLDivElement>(null);
     const refTop = useRef<HTMLDivElement>(null);
     const refBottom = useRef<HTMLDivElement>(null);
     const refFrameId = useRef<number | null>(null);
+
+    const [rowHeight, setRowHeight] = useState(rowHeightProp);
+    const isMeasured = useRef(false);
+
+    const cnt = data.length;
+
+    useEffect(() => {
+        if (autoSize) {
+            setRowHeight(rowHeightProp);
+            isMeasured.current = false;
+        } else if (!isMeasured.current && refCenter.current) {
+            const h = refCenter.current.offsetHeight;
+            if (h > 0) {
+                setRowHeight(h);
+                isMeasured.current = true;
+            }
+        }
+    }, [autoSize, rowHeightProp]);
 
     const targetIndex = useMemo(() => {
         if (targetKey === undefined) {
@@ -85,14 +105,22 @@ function List<T extends ListItem>({
 
     const [target, setTarget] = useState<TargetState>({
         index: targetIndex || 0,
-        top: (targetIndex || 0) * rowHeight,
-        bottom: rowHeight * (data.length - (targetIndex || 0) - 1)
+        top: (targetIndex || 0) * rowHeightProp,
+        bottom: rowHeightProp * (data.length - (targetIndex || 0) - 1)
     });
+
+    // пересчет target при изменении rowHeight (например, после измерения refCenter)
+    useEffect(() => {
+        setTarget(prev => ({
+            ...prev,
+            top: prev.index * rowHeight,
+            bottom: rowHeight * (cnt - prev.index - 1)
+        }));
+    }, [rowHeight, cnt]);
+
     const [containerHeight, setContainerHeight] = useState(600);
     const [isScrolling, setIsScrolling] = useState(false);
     const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const cnt = data.length;
 
     const cntElements = useMemo(() => {
         return Math.ceil(containerHeight / rowHeight) + 3;

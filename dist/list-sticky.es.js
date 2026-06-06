@@ -35,17 +35,33 @@ var Item = memo(({ data, renderRow }) => {
 function List({
   data,
   renderRow,
-  rowHeight = 50,
+  rowHeight: rowHeightProp = 50,
   fieldKey = "id",
   targetKey,
   placeholder = "\u041D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445",
-  style
+  style,
+  autoSize = true
 }) {
   const refScroll = useRef(null);
   const refCenter = useRef(null);
   const refTop = useRef(null);
   const refBottom = useRef(null);
   const refFrameId = useRef(null);
+  const [rowHeight, setRowHeight] = useState(rowHeightProp);
+  const isMeasured = useRef(false);
+  const cnt = data.length;
+  useEffect(() => {
+    if (autoSize) {
+      setRowHeight(rowHeightProp);
+      isMeasured.current = false;
+    } else if (!isMeasured.current && refCenter.current) {
+      const h = refCenter.current.offsetHeight;
+      if (h > 0) {
+        setRowHeight(h);
+        isMeasured.current = true;
+      }
+    }
+  }, [autoSize, rowHeightProp]);
   const targetIndex = useMemo(() => {
     if (targetKey === void 0) {
       return void 0;
@@ -55,13 +71,19 @@ function List({
   }, [fieldKey, targetKey, data]);
   const [target, setTarget] = useState({
     index: targetIndex || 0,
-    top: (targetIndex || 0) * rowHeight,
-    bottom: rowHeight * (data.length - (targetIndex || 0) - 1)
+    top: (targetIndex || 0) * rowHeightProp,
+    bottom: rowHeightProp * (data.length - (targetIndex || 0) - 1)
   });
+  useEffect(() => {
+    setTarget((prev) => ({
+      ...prev,
+      top: prev.index * rowHeight,
+      bottom: rowHeight * (cnt - prev.index - 1)
+    }));
+  }, [rowHeight, cnt]);
   const [containerHeight, setContainerHeight] = useState(600);
   const [isScrolling, setIsScrolling] = useState(false);
   const timeoutRef = useRef(null);
-  const cnt = data.length;
   const cntElements = useMemo(() => {
     return Math.ceil(containerHeight / rowHeight) + 3;
   }, [rowHeight, containerHeight]);
