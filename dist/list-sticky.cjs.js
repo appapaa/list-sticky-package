@@ -62,23 +62,24 @@ var Item = (0, import_react.memo)(({ data, renderRow }) => {
 function List({
   data,
   renderRow,
-  rowHeight: rowHeightProp = 50,
+  rowHeight: _rowHeightProp,
   fieldKey = "id",
   targetKey,
   placeholder = "\u041D\u0435\u0442 \u0434\u0430\u043D\u043D\u044B\u0445",
-  style,
-  autoSize = true
+  style
 }) {
+  const rowHeightProp = _rowHeightProp || 50;
   const refScroll = (0, import_react.useRef)(null);
   const refCenter = (0, import_react.useRef)(null);
   const refTop = (0, import_react.useRef)(null);
   const refBottom = (0, import_react.useRef)(null);
   const refFrameId = (0, import_react.useRef)(null);
+  const autoHeight = !_rowHeightProp;
   const [rowHeight, setRowHeight] = (0, import_react.useState)(rowHeightProp);
   const isMeasured = (0, import_react.useRef)(false);
   const cnt = data.length;
   (0, import_react.useEffect)(() => {
-    if (autoSize) {
+    if (!autoHeight) {
       setRowHeight(rowHeightProp);
       isMeasured.current = false;
     } else if (!isMeasured.current && refCenter.current) {
@@ -88,7 +89,7 @@ function List({
         isMeasured.current = true;
       }
     }
-  }, [autoSize, rowHeightProp]);
+  }, [autoHeight, rowHeightProp]);
   const targetIndex = (0, import_react.useMemo)(() => {
     if (targetKey === void 0) {
       return void 0;

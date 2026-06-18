@@ -15,8 +15,7 @@ interface ListProps<T extends ListItem> {
     targetKey?: string | number;
     placeholder?: string | ReactNode;
     style?: CSSProperties;
-    autoSize?: boolean;
 }
-declare function List<T extends ListItem>({ data, renderRow, rowHeight: rowHeightProp, fieldKey, targetKey, placeholder, style, autoSize }: ListProps<T>): react.JSX.Element;
+declare function List<T extends ListItem>({ data, renderRow, rowHeight: _rowHeightProp, fieldKey, targetKey, placeholder, style }: ListProps<T>): react.JSX.Element;
 
 export { List, type ListItem, type ListProps, List as default };

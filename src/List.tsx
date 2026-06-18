@@ -13,7 +13,6 @@ export interface ListProps<T extends ListItem> {
     targetKey?: string | number;
     placeholder?: string | ReactNode;
     style?: CSSProperties;
-    autoSize?: boolean;
 }
 
 const some = (values: HTMLCollection | undefined, matches: (value: HTMLElement) => boolean): boolean => {
@@ -64,26 +63,26 @@ const Item = memo(<T extends ListItem>({ data, renderRow }: ItemProps<T>) => {
 function List<T extends ListItem>({
     data,
     renderRow,
-    rowHeight: rowHeightProp = 50,
+    rowHeight: _rowHeightProp,
     fieldKey = 'id',
     targetKey,
     placeholder = 'Нет данных',
-    style,
-    autoSize = true
+    style
 }: ListProps<T>) {
+    const rowHeightProp = _rowHeightProp || 50;
     const refScroll = useRef<HTMLDivElement>(null);
     const refCenter = useRef<HTMLDivElement>(null);
     const refTop = useRef<HTMLDivElement>(null);
     const refBottom = useRef<HTMLDivElement>(null);
     const refFrameId = useRef<number | null>(null);
-
+    const autoHeight =!_rowHeightProp;
     const [rowHeight, setRowHeight] = useState(rowHeightProp);
     const isMeasured = useRef(false);
 
     const cnt = data.length;
 
     useEffect(() => {
-        if (autoSize) {
+        if (!autoHeight) {
             setRowHeight(rowHeightProp);
             isMeasured.current = false;
         } else if (!isMeasured.current && refCenter.current) {
@@ -93,7 +92,7 @@ function List<T extends ListItem>({
                 isMeasured.current = true;
             }
         }
-    }, [autoSize, rowHeightProp]);
+    }, [autoHeight, rowHeightProp]);
 
     const targetIndex = useMemo(() => {
         if (targetKey === undefined) {
