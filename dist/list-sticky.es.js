@@ -124,12 +124,14 @@ function List({
     });
   }, [cnt, rowHeight]);
   const autoScroll = useCallback(() => {
-    if (!refCenter.current || !refTop.current || !refBottom.current) return;
+    if (!refScroll.current || !refCenter.current || !refTop.current || !refBottom.current) return;
     const rect = refCenter.current.getBoundingClientRect();
-    if (rect.top + rect.height < 0) {
+    const rectTop = refCenter.current.offsetTop - refScroll.current.scrollTop;
+    const rectHeight = refCenter.current.offsetHeight;
+    if (rectTop + rectHeight < 0) {
       let i = 1;
-      let top = rect.height;
-      const delta = -rect.top;
+      let top = rectHeight;
+      const delta = -rectTop;
       const flg = some(refBottom.current.children, (div) => {
         const h = div.offsetHeight;
         if (delta > top + h) {
@@ -146,10 +148,10 @@ function List({
         top += _i * rowHeight;
       }
       updateTarget(i, top, -i * rowHeight);
-    } else if (rect.top > 0) {
+    } else if (rectTop > 0) {
       let i = 0;
       let top = 0;
-      const delta = -rect.top;
+      const delta = -rectTop;
       const flg = someReverse(refTop.current.children, (div) => {
         const h = div.offsetHeight;
         i--;
@@ -167,7 +169,7 @@ function List({
       }
       updateTarget(i, top, -i * rowHeight);
     }
-  }, [refCenter, refTop, rowHeight, refBottom, updateTarget]);
+  }, [refScroll, refCenter, refTop, rowHeight, refBottom, updateTarget]);
   const autoScrollFrame = useCallback(() => {
     if (refFrameId.current !== null) {
       cancelAnimationFrame(refFrameId.current);
@@ -249,6 +251,7 @@ function List({
         width: "100%",
         overflowY: "auto",
         overflowX: "hidden",
+        position: "relative",
         ...style
       },
       children: [
